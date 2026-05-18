@@ -1,0 +1,5 @@
+{
+    "powerquery.client.additionalSymbolsDirectories": [
+        "c:/wamp64/www/smmas/.vscode/excel-pq-symbols"
+    ]
+}
