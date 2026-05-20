@@ -7,7 +7,7 @@ $conn = getConnection();
 $message = '';
 
 // Clear old resolved alerts
-$conn->exec("DELETE FROM Alert WHERE alert_status = 'Resolved' AND date_resolved < DATE_SUB(NOW(), INTERVAL 1 DAY)");
+$conn->exec("DELETE FROM alert WHERE alert_status = 'Resolved' AND date_resolved < DATE_SUB(NOW(), INTERVAL 1 DAY)");
 
 // Check for out of stock alerts (Critical)
 $out_of_stock = $conn->query("
@@ -19,12 +19,12 @@ $out_of_stock = $conn->query("
 ");
 
 while($medicine = $out_of_stock->fetch()) {
-    $check = $conn->prepare("SELECT alert_id FROM Alert WHERE medicine_id = ? AND alert_type = 'Stockout' AND alert_status = 'Active'");
+    $check = $conn->prepare("SELECT alert_id FROM alert WHERE medicine_id = ? AND alert_type = 'Stockout' AND alert_status = 'Active'");
     $check->execute([$medicine['medicine_id']]);
     if($check->rowCount() == 0) {
         $alert_id = 'ALT-' . date('Ymd') . '-' . rand(100, 999);
         $message_text = "CRITICAL: {$medicine['medicine_name']} is OUT OF STOCK!";
-        $conn->prepare("INSERT INTO Alert (alert_id, medicine_id, alert_type, severity_level, date_generated, alert_message) VALUES (?, ?, 'Stockout', 'Critical', NOW(), ?)")->execute([$alert_id, $medicine['medicine_id'], $message_text]);
+        $conn->prepare("INSERT INTO alert (alert_id, medicine_id, alert_type, severity_level, date_generated, alert_message) VALUES (?, ?, 'Stockout', 'Critical', NOW(), ?)")->execute([$alert_id, $medicine['medicine_id'], $message_text]);
     }
 }
 
@@ -57,13 +57,13 @@ $expiring = $conn->query("
 ");
 
 while($batch = $expiring->fetch()) {
-    $check = $conn->prepare("SELECT alert_id FROM Alert WHERE batch_id = ? AND alert_status = 'Active'");
+    $check = $conn->prepare("SELECT alert_id FROM alert WHERE batch_id = ? AND alert_status = 'Active'");
     $check->execute([$batch['batch_id']]);
     if($check->rowCount() == 0) {
         $alert_id = 'ALT-' . date('Ymd') . '-' . rand(100, 999);
         $severity = ($batch['days_left'] <= 7) ? 'Critical' : 'Warning';
         $message_text = ($batch['days_left'] <= 7 ? "CRITICAL: " : "Warning: ") . "Batch of {$batch['medicine_name']} expires in {$batch['days_left']} days on " . date('d M Y', strtotime($batch['expiry_date']));
-        $conn->prepare("INSERT INTO Alert (alert_id, medicine_id, batch_id, alert_type, severity_level, date_generated, alert_message) VALUES (?, ?, ?, 'Expiry Warning', ?, NOW(), ?)")->execute([$alert_id, $batch['medicine_id'], $batch['batch_id'], $severity, $message_text]);
+        $conn->prepare("INSERT INTO alert (alert_id, medicine_id, batch_id, alert_type, severity_level, date_generated, alert_message) VALUES (?, ?, ?, 'Expiry Warning', ?, NOW(), ?)")->execute([$alert_id, $batch['medicine_id'], $batch['batch_id'], $severity, $message_text]);
     }
 }
 

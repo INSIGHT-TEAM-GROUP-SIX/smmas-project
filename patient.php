@@ -18,7 +18,7 @@ if(isset($_POST['add_patient'])) {
     $blood_group = $_POST['blood_group'];
     $known_allergies = $_POST['known_allergies'];
     
-    $sql = "INSERT INTO Patient (patient_id, full_name, date_of_birth, gender, phone_number, patient_type, date_registered, blood_group, known_allergies) 
+    $sql = "INSERT INTO patient (patient_id, full_name, date_of_birth, gender, phone_number, patient_type, date_registered, blood_group, known_allergies) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     try {
@@ -29,7 +29,7 @@ if(isset($_POST['add_patient'])) {
     }
 }
 
-$patients = $conn->query("SELECT * FROM Patient ORDER BY date_registered DESC")->fetchAll();
+$patients = $conn->query("SELECT * FROM patient ORDER BY date_registered DESC")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html>
