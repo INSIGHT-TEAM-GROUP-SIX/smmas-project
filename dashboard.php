@@ -11,7 +11,7 @@ $queries = [
     'critical_alerts' => "SELECT COUNT(*) as c FROM Alert WHERE severity_level = 'Critical' AND alert_status = 'Active'"
 ];
 foreach($queries as $k => $sql) { $stats[$k] = $conn->query($sql)->fetch()['c']; }
-$recent = $conn->query("SELECT t.*, m.medicine_name, p.full_name FROM `Transaction` t JOIN Medicine m ON t.medicine_id = m.medicine_id LEFT JOIN Patient p ON t.patient_id = p.patient_id ORDER BY t.transaction_date DESC LIMIT 10")->fetchAll();
+$recent = $conn->query("SELECT t.*, m.medicine_name, p.full_name FROM `Transaction` t JOIN medicine m ON t.medicine_id = m.medicine_id LEFT JOIN Patient p ON t.patient_id = p.patient_id ORDER BY t.transaction_date DESC LIMIT 10")->fetchAll();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">

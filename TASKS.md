@@ -1,69 +1,13 @@
-
 ---
-
 ```markdown
 
-
-
 # SM MAS Project - Team Tasks & Guidelines
+YOUR ASSIGNED ROLES IS AT THE BOTTOM OF THIS GUIDE GOOD LUCK TEAM & YOU CAN BE USING YOUR PARTICULAR HTML FILES TO PRACTICE BEFORE FIXING YOUR CODES WITH THE PHP FILES THOSE NOE LIKE RESEARCH AT A PERSONAL LEVEL GOOD LUCK YOU ALL.
 
 Project: Smart Medicine Monitoring & Alert System for
 Kyambogo Medical Centre
 
-## 👥 Team Members &
-Assignments
-
-| Name | Role | Branch Name | Files to Work On |
-
-|------|------|-------------|------------------|
-
-| **Leonard (Team Lead)** | Database & Core Setup |
-`feature/database-setup` | `config/database.php`, `install.php`,
-`fresh_install.php`, `fix_admin.php`, `fix_user_passwords.php` |
-
-
-| **Provia** | Authentication & Security |
-`feature/authentication` | `login.php`, `logout.php`, `simple_login.php`,
-`debug_login.php`, `includes/auth.php`, `includes/encryption.php` |
-
-
-| **Harriet** | Dashboard & Navigation |
-`feature/dashboard-ui` | `dashboard.php`, `enter.php`, `index.html`,
-`includes/navbar.php` |
-
-
-| **Eliphaz** | Medicine Inventory | `feature/medicine-mgmt`
-| `medicine.php`, `batch.php`, `alert.php` |
-
-
-| **Jordan** | Patient Management | `feature/patient-mgmt` |
-`patient.php`, `transaction.php`, `users.php` |
-
-| **Gilbert** | Reports Module | `feature/reports` |
-`reports.php`, `reports/alerts_report.php`, `reports/dashboard_report.php`,
-`reports/expiry_report.php`, `reports/patients_report.php`,
-`reports/stock_report.php`, `reports/transactions_report.php` |
-
-
-| **Ibrah** | CSS Styling | `feature/css-styling` |
-`css/style.css` |
-
-| **Stanley** | Testing & QA | `feature/testing` | Test
-all features, review pull requests, write test reports |
-
-
-
-
 ## 📁 Folder Structure
-
-
-
- 
-
-
-
-```
-
 C:\wamp64\www\smms
 
 ├── .github/
@@ -146,41 +90,14 @@ transactions_report.php
 └── users.php
 
 ```
-
-
-
- 
-
-
-
 ---
-
-
-
- 
-
-
-
 ## ⚠️ Important Rules Everyone Must
+
 Follow
-
-
-
- 
-
-
 
 ### Rule 1: Never Work on Main Branch
 
-
-
 Always create your own branch before making any changes.
-
-
-
- 
-
-
 
 ```bash
 
@@ -225,7 +142,7 @@ Good: Added validation to login form
 
 Rule 5: Test Locally Before Pushing
 
-Always test your changes at http://localhost/smms/ before
+Always test your changes at http://localhost/smmas-project/ before
 pushing to GitHub.
 
 Rule 6: Use Pull Requests
@@ -266,7 +183,7 @@ cd C:\wamp64\www\
 
 git clone https://github.com/INSIGHT-TEAM-GROUP-SIX/smmas-project.git
 
-cd smmas
+cd smmas-project
 
 code .
 
@@ -328,7 +245,7 @@ Every day when you start working:
 
 # 1. Open VS Code with your project
 
-cd C:\wamp64\www\smmas
+cd C:\wamp64\www\smmas-project
 
 code .
 
@@ -382,7 +299,7 @@ Step 5: Fill in:
 
 Setting Value
 
-Name smms
+Name smmas
 
 Environment PHP
 
@@ -406,12 +323,14 @@ Step 2: Sign up with GitHub
 Step 3: Click "New Project" → "Deploy from
 GitHub repo"
 
-Step 4: Select your smms repository
+Step 4: Select your smmas-project repository
 
 Step 5: Railway auto-detects PHP (it just works!)
 
 For Database: Click "New" → "Database" →
 "MySQL" → It automatically connects
+
+USING INFINITY FREE PLATFORM TO HOST THIS PROJECT.
 
 ---
 
@@ -457,7 +376,7 @@ Use your group WhatsApp/Discord channel for:
 
 Action Command
 
-Open project cd C:\wamp64\www\smmas && code .
+Open project cd C:\wamp64\www\smmas-project && code .
 
 Create branch git checkout -b feature/your-name
 
@@ -470,11 +389,11 @@ Push git push origin feature/your-name
 
 Get updates git pull origin main
 
-Test locally http://localhost/smmas/
+Test locally http://localhost/smmas-project/
 
 ---
 
-Good luck team! Let's build something great together. 
+Good luck team! Let's build something great together.
 
 ---
 
@@ -482,7 +401,7 @@ Good luck team! Let's build something great together.
 
 Project
 
-1. In VS Code, open your `smmas` folder
+1. In VS Code, open your `smmas`-project folder
 2. Create a new file called `TASKS.md`
 3. Copy EVERYTHING from the code block above
 4. Save the file (Ctrl + S)
@@ -516,7 +435,6 @@ git clone https://github.com/INSIGHT-TEAM-GROUP-SIX/smmas-project.git
 
 ```
 
-
 # Smart Medicine Monitoring & Alert System
 
 ## About
@@ -542,8 +460,8 @@ stock levels, track expiries, and send alerts when stock runs low.
 ## Setup
 
 1. Clone repository to `C:\wamp64\www\`
-2. Import database from `install.php`
-3. Access at `http://localhost/smmas/`
+2. Import database from install the database manually like i showed you members
+3. Access at `http://localhost/smmas-project/`
 
 ## Team Members
 
@@ -554,4 +472,18 @@ stock levels, track expiries, and send alerts when stock runs low.
 - Jordan
 - Gilbert
 - Ibrah
+- ROLES THAT IS SUPPOSED TO EXECUTED BY EACH MEMBER GOOD LUCK FRIENDS
+- | leonard | Admin page   | Dark mode toggle(all pages) &<br />Keyboard shortcut                                             |
+  | :-----: | ------------ | ------------------------------------------------------------------------------------------------ |
+  | Eliphaz | Batch page   | expiry heat map, fire emoji +shake<br />animation , FIFO badge showing <br />"Expires in x days" |
+  | Provia | Patient page | Dosage calculator based on age /<br />weight of a patient                                        |
+- | Ibrah   | Dashboard page | typing animation on page load                                                 |
+  | ------- | -------------- | ----------------------------------------------------------------------------- |
+  | Stanley | Alert page     | browser sound + popup notification,<br />AI voice read aloud of alert message |
+  | Gilbert | Dashboard page | Live clock + shift count down timer                                           |
+
+  | harriet | Transaction | Dispense speed tracker       |
+  | ------- | ----------- | ---------------------------- |
+  | Jordan  | report      | Auto-generated Insight cards |
+  |         |             |                              |
 - Stanley
