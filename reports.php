@@ -80,8 +80,8 @@ $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-d');
         $stmt = $conn->query("
             SELECT m.medicine_name, m.category, m.strength, m.reorder_level, m.unit_price,
                    COALESCE(SUM(b.qty_remaining), 0) as current_stock
-            FROM Medicine m
-            LEFT JOIN Batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
+            FROM medicine m
+            LEFT JOIN batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
             GROUP BY m.medicine_id, m.medicine_name, m.category, m.strength, m.reorder_level, m.unit_price
             ORDER BY current_stock ASC
         ");
@@ -119,8 +119,8 @@ $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-d');
         $stmt = $conn->query("
             SELECT m.medicine_name, b.batch_number, b.supplier_name, b.expiry_date, b.qty_remaining,
                    DATEDIFF(b.expiry_date, CURDATE()) as days_left
-            FROM Batch b
-            JOIN Medicine m ON b.medicine_id = m.medicine_id
+            FROM batch b
+            JOIN medicine m ON b.medicine_id = m.medicine_id
             WHERE b.batch_status = 'Active'
             ORDER BY b.expiry_date ASC
         ");
@@ -152,7 +152,7 @@ $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-d');
         $stmt = $conn->prepare("
             SELECT DATE(transaction_date) as date, COUNT(*) as count, 
                    SUM(quantity) as items, SUM(quantity * unit_price) as total
-            FROM `Transaction`
+            FROM `transaction`
             WHERE transaction_type = 'Dispense' AND DATE(transaction_date) BETWEEN ? AND ?
             GROUP BY DATE(transaction_date)
             ORDER BY date DESC
@@ -217,8 +217,8 @@ $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-d');
         // ALERT REPORT
         $stmt = $conn->prepare("
             SELECT a.*, m.medicine_name
-            FROM Alert a
-            JOIN Medicine m ON a.medicine_id = m.medicine_id
+            FROM alert a
+            JOIN medicine m ON a.medicine_id = m.medicine_id
             WHERE DATE(a.date_generated) BETWEEN ? AND ?
             ORDER BY a.date_generated DESC
             LIMIT 100
