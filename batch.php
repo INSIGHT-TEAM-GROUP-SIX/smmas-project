@@ -9,7 +9,7 @@ $message = '';
 // Function to auto-generate batch number
 function generateBatchNumber($conn) {
     // Get the last batch number
-    $stmt = $conn->query("SELECT batch_number FROM Batch ORDER BY created_at DESC LIMIT 1");
+    $stmt = $conn->query("SELECT batch_number FROM batch ORDER BY created_at DESC LIMIT 1");
     $last = $stmt->fetch();
     
     if($last && preg_match('/BAT-(\d+)/', $last['batch_number'], $matches)) {
@@ -51,8 +51,8 @@ $medicines = $conn->query("SELECT medicine_id, medicine_name FROM medicine WHERE
 $batches = $conn->query("
     SELECT b.*, m.medicine_name, 
            (b.qty_remaining / b.qty_received * 100) as stock_percentage
-    FROM Batch b 
-    JOIN Medicine m ON b.medicine_id = m.medicine_id 
+    FROM batch b 
+    JOIN medicine m ON b.medicine_id = m.medicine_id 
     ORDER BY b.expiry_date ASC
 ")->fetchAll();
 ?>

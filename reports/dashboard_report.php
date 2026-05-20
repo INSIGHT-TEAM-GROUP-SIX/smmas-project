@@ -18,7 +18,7 @@ $total_revenue = $stmt->fetch()['total'];
 $stmt = $conn->query("
     SELECT m.medicine_id, m.reorder_level, COALESCE(SUM(b.qty_remaining), 0) as current_stock
     FROM medicine m
-    LEFT JOIN Batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
+    LEFT JOIN batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
     GROUP BY m.medicine_id, m.reorder_level
 ");
 $all_medicines = $stmt->fetchAll();
@@ -41,8 +41,8 @@ $expiring_soon = $stmt->fetch()['count'];
 // Top selling medicines
 $stmt = $conn->query("
     SELECT m.medicine_name, SUM(t.quantity) as total_sold
-    FROM `Transaction` t
-    JOIN Medicine m ON t.medicine_id = m.medicine_id
+    FROM `transaction` t
+    JOIN medicine m ON t.medicine_id = m.medicine_id
     WHERE t.transaction_type = 'Dispense'
     GROUP BY m.medicine_id, m.medicine_name
     ORDER BY total_sold DESC

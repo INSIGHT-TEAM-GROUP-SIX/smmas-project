@@ -37,10 +37,10 @@ if(isset($_POST['process_transaction'])) {
                 $stmt = $conn->prepare($sql);
                 $stmt->execute([$transaction_id, $medicine_id, $batch_id, $patient_id, $transaction_type, $quantity, $unit_price, $handled_by, $payment_method]);
                 
-                $update = $conn->prepare("UPDATE Batch SET qty_remaining = qty_remaining - ? WHERE batch_id = ?");
+                $update = $conn->prepare("UPDATE batch SET qty_remaining = qty_remaining - ? WHERE batch_id = ?");
                 $update->execute([$quantity, $batch_id]);
                 
-                $update_med = $conn->prepare("UPDATE Medicine SET current_stock = current_stock - ? WHERE medicine_id = ?");
+                $update_med = $conn->prepare("UPDATE medicine SET current_stock = current_stock - ? WHERE medicine_id = ?");
                 $update_med->execute([$quantity, $medicine_id]);
                 
                 $conn->commit();
@@ -77,7 +77,7 @@ if(isset($_POST['process_transaction'])) {
 // AJAX for batches
 if(isset($_GET['get_batches']) && isset($_GET['medicine_id'])) {
     $medicine_id = $_GET['medicine_id'];
-    $stmt = $conn->prepare("SELECT batch_id, batch_number, qty_remaining, expiry_date FROM Batch WHERE medicine_id = ? AND batch_status = 'Active' AND qty_remaining > 0 AND expiry_date > CURDATE() ORDER BY expiry_date ASC");
+    $stmt = $conn->prepare("SELECT batch_id, batch_number, qty_remaining, expiry_date FROM batch WHERE medicine_id = ? AND batch_status = 'Active' AND qty_remaining > 0 AND expiry_date > CURDATE() ORDER BY expiry_date ASC");
     $stmt->execute([$medicine_id]);
     $batches = $stmt->fetchAll();
     
@@ -92,7 +92,7 @@ if(isset($_GET['get_batches']) && isset($_GET['medicine_id'])) {
 }
 
 $medicines = $conn->query("SELECT medicine_id, medicine_name, unit_price FROM medicine WHERE status = 'Active' ORDER BY medicine_name")->fetchAll();
-$patients = $conn->query("SELECT patient_id, full_name FROM Patient ORDER BY full_name")->fetchAll();
+$patients = $conn->query("SELECT patient_id, full_name FROM patient ORDER BY full_name")->fetchAll();
 $recent = $conn->query("SELECT t.*, m.medicine_name FROM `transaction` t JOIN medicine m ON t.medicine_id = m.medicine_id ORDER BY t.transaction_date DESC LIMIT 20")->fetchAll();
 ?>
 <!DOCTYPE html>
