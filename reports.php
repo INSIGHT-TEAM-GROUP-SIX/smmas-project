@@ -185,7 +185,7 @@ $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-d');
         // PATIENT REPORT
         $stmt = $conn->prepare("
             SELECT patient_id, full_name, patient_type, date_registered, phone_number, gender
-            FROM Patient
+            FROM patient
             WHERE DATE(date_registered) BETWEEN ? AND ?
             ORDER BY date_registered DESC
         ");
