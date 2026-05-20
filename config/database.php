@@ -1,15 +1,13 @@
 <?php
+require_once 'config_online.php';
+
 // Database configuration for PDO
+if(!defined('DB_HOST')){
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'smmas_db1');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-
-
-
-
-
-
+}
 class Database {
     private static $instance = null;
     private $conn;
