@@ -45,7 +45,7 @@ function getConnection() {
 
 // Generate Medicine ID (MED-0001, MED-0002, MED-0003...)
 function generateMedicineID($conn) {
-    $stmt = $conn->query("SELECT MAX(CAST(SUBSTRING(medicine_id, 5) AS UNSIGNED)) as max_id FROM Medicine");
+    $stmt = $conn->query("SELECT MAX(CAST(SUBSTRING(medicine_id, 5) AS UNSIGNED)) as max_id FROM medicine");
     $row = $stmt->fetch();
     $next_id = ($row['max_id'] ?? 0) + 1;
     return 'MED-' . str_pad($next_id, 4, '0', STR_PAD_LEFT);
@@ -53,7 +53,7 @@ function generateMedicineID($conn) {
 
 // Generate Batch ID (BAT-0001, BAT-0002, BAT-0003...)
 function generateBatchID($conn) {
-    $stmt = $conn->query("SELECT MAX(CAST(SUBSTRING(batch_id, 5) AS UNSIGNED)) as max_id FROM Batch");
+    $stmt = $conn->query("SELECT MAX(CAST(SUBSTRING(batch_id, 5) AS UNSIGNED)) as max_id FROM batch");
     $row = $stmt->fetch();
     $next_id = ($row['max_id'] ?? 0) + 1;
     return 'BAT-' . str_pad($next_id, 4, '0', STR_PAD_LEFT);
@@ -61,7 +61,7 @@ function generateBatchID($conn) {
 
 // Generate Patient ID (PAT-0001, PAT-0002, PAT-0003...)
 function generatePatientID($conn) {
-    $stmt = $conn->query("SELECT MAX(CAST(SUBSTRING(patient_id, 5) AS UNSIGNED)) as max_id FROM Patient");
+    $stmt = $conn->query("SELECT MAX(CAST(SUBSTRING(patient_id, 5) AS UNSIGNED)) as max_id FROM patient");
     $row = $stmt->fetch();
     $next_id = ($row['max_id'] ?? 0) + 1;
     return 'PAT-' . str_pad($next_id, 4, '0', STR_PAD_LEFT);
@@ -72,7 +72,7 @@ function generateTransactionID($conn) {
     $date = date('Ymd');
     $prefix = 'TXN-' . $date . '-';
     
-    $stmt = $conn->prepare("SELECT transaction_id FROM `Transaction` WHERE transaction_id LIKE ? ORDER BY transaction_id DESC LIMIT 1");
+    $stmt = $conn->prepare("SELECT transaction_id FROM `transaction` WHERE transaction_id LIKE ? ORDER BY transaction_id DESC LIMIT 1");
     $stmt->execute([$prefix . '%']);
     $last = $stmt->fetch();
     
@@ -98,7 +98,7 @@ function generateAlertID($conn) {
     $prefix = 'ALT';
     $date = date('Ymd');
     $stmt = $conn->prepare("SELECT MAX(CAST(SUBSTRING(alert_id, 13) AS UNSIGNED)) as max_id 
-                            FROM Alert 
+                            FROM alert 
                             WHERE alert_id LIKE ?");
     $stmt->execute([$prefix . '-' . $date . '-%']);
     $row = $stmt->fetch();
