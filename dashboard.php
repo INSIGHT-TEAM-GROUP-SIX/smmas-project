@@ -1,25 +1,205 @@
 <?php
 require_once 'config/database.php';
 require_once 'includes/auth.php';
+
 checkAuth();
+
 $conn = getConnection();
+
 $stats = [];
+
 $queries = [
     'total_medicines' => "SELECT COUNT(*) as c FROM medicine",
     'total_patients' => "SELECT COUNT(*) as c FROM patient",
     'active_alerts' => "SELECT COUNT(*) as c FROM alert WHERE alert_status = 'Active'",
     'critical_alerts' => "SELECT COUNT(*) as c FROM alert WHERE severity_level = 'Critical' AND alert_status = 'Active'"
 ];
-foreach($queries as $k => $sql) { $stats[$k] = $conn->query($sql)->fetch()['c']; }
-$recent = $conn->query("SELECT t.*, m.medicine_name, p.full_name FROM `transaction` t JOIN medicine m ON t.medicine_id = m.medicine_id LEFT JOIN patient p ON t.patient_id = p.patient_id ORDER BY t.transaction_date DESC LIMIT 10")->fetchAll();
+
+foreach($queries as $k => $sql) {
+    $stats[$k] = $conn->query($sql)->fetch()['c'];
+}
+
+$recent = $conn->query("
+    SELECT t.*, m.medicine_name, p.full_name
+    FROM `transaction` t
+    JOIN medicine m ON t.medicine_id = m.medicine_id
+    LEFT JOIN patient p ON t.patient_id = p.patient_id
+    ORDER BY t.transaction_date DESC
+    LIMIT 10
+")->fetchAll();
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Dashboard</title><link rel="stylesheet" href="css/style.css" /></head>
+<head>
+<meta charset="utf-8" />
+<title>Dashboard</title>
+
+<link rel="stylesheet" href="css/style.css" />
+
+<style>
+.clock-container{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#f4f4f4;
+    padding:15px;
+    margin-bottom:20px;
+    border-radius:8px;
+}
+
+.live-clock{
+    font-size:24px;
+    font-weight:bold;
+    color:#2c3e50;
+}
+
+.shift-timer{
+    font-size:20px;
+    color:#e74c3c;
+    font-weight:bold;
+}
+</style>
+</head>
+
 <body>
+
 <?php include 'includes/navbar.php'; ?>
+
 <div class="container">
-<div class="dashboard-header"><h1>Welcome, <?php echo $_SESSION['full_name']; ?></h1><p>Role: <?php echo $_SESSION['role']; ?></p></div>
-<div class="stats-grid"><div class="stat-card"><div class="stat-value"><?php echo $stats['total_medicines']; ?></div><div class="stat-label">Medicines</div></div><div class="stat-card"><div class="stat-value"><?php echo $stats['total_patients']; ?></div><div class="stat-label">Patients</div></div><div class="stat-card alert-card"><div class="stat-value"><?php echo $stats['active_alerts']; ?></div><div class="stat-label">Active Alerts</div></div><div class="stat-card warning-card"><div class="stat-value"><?php echo $stats['critical_alerts']; ?></div><div class="stat-label">Critical</div></div></div>
-<div class="data-table-container"><h2>Recent Transactions</h2><table class="data-table"><thead><tr><th>ID</th><th>Medicine</th><th>Patient</th><th>Type</th><th>Qty</th><th>Date</th></tr></thead><tbody><?php foreach($recent as $r): ?><tr><td><?php echo $r['transaction_id']; ?></td><td><?php echo $r['medicine_name']; ?></td><td><?php echo $r['full_name'] ?? 'N/A'; ?></td><td><?php echo $r['transaction_type']; ?></td><td><?php echo $r['quantity']; ?></td><td><?php echo date('d M Y H:i', strtotime($r['transaction_date'])); ?></td></tr><?php endforeach; ?></tbody></table></div>
-</div></body></html>
+
+    <div class="dashboard-header">
+        <h1>Welcome, <?php echo $_SESSION['full_name']; ?></h1>
+        <p>Role: <?php echo $_SESSION['role']; ?></p>
+    </div>
+
+    <!-- CLOCK + COUNTDOWN -->
+    <div class="clock-container">
+        <div>
+            <h3>Current Time</h3>
+            <div id="liveClock" class="live-clock"></div>
+        </div>
+
+        <div>
+            <h3>Shift Ends In</h3>
+            <div id="countdown" class="shift-timer"></div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-value"><?php echo $stats['total_medicines']; ?></div>
+            <div class="stat-label">Medicines</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value"><?php echo $stats['total_patients']; ?></div>
+            <div class="stat-label">Patients</div>
+        </div>
+
+        <div class="stat-card alert-card">
+            <div class="stat-value"><?php echo $stats['active_alerts']; ?></div>
+            <div class="stat-label">Active Alerts</div>
+        </div>
+
+        <div class="stat-card warning-card">
+            <div class="stat-value"><?php echo $stats['critical_alerts']; ?></div>
+            <div class="stat-label">Critical</div>
+        </div>
+
+    </div>
+
+    <div class="data-table-container">
+
+        <h2>Recent Transactions</h2>
+
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Medicine</th>
+                    <th>Patient</th>
+                    <th>Type</th>
+                    <th>Qty</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            <?php foreach($recent as $r): ?>
+
+                <tr>
+                    <td><?php echo $r['transaction_id']; ?></td>
+                    <td><?php echo $r['medicine_name']; ?></td>
+                    <td><?php echo $r['full_name'] ?? 'N/A'; ?></td>
+                    <td><?php echo $r['transaction_type']; ?></td>
+                    <td><?php echo $r['quantity']; ?></td>
+                    <td><?php echo date('d M Y H:i', strtotime($r['transaction_date'])); ?></td>
+                </tr>
+
+            <?php endforeach; ?>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+// LIVE CLOCK
+function updateClock() {
+    const now = new Date();
+
+    const time = now.toLocaleTimeString();
+
+    document.getElementById('liveClock').innerHTML = time;
+}
+
+setInterval(updateClock, 1000);
+
+updateClock();
+
+
+// SHIFT COUNTDOWN
+// Example: Shift ends at 6:00 PM
+
+function updateCountdown() {
+
+    const now = new Date();
+
+    const shiftEnd = new Date();
+
+    shiftEnd.setHours(18, 0, 0, 0);
+
+    // if shift already ended
+    if(now > shiftEnd){
+        document.getElementById('countdown').innerHTML = "Shift Ended";
+        return;
+    }
+
+    const diff = shiftEnd - now;
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById('countdown').innerHTML =
+        hours + "h " + minutes + "m " + seconds + "s";
+}
+
+setInterval(updateCountdown, 1000);
+
+updateCountdown();
+
+</script>
+
+</body>
+</html>
