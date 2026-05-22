@@ -74,7 +74,8 @@ button{width:100%;padding:12px;background:#0A4F6E;color:white;border:none;border
 </form>
 <p style="margin-top:15px;font-size:12px">Login in using credentials provided</p>
 <p style="margin-top:15px;font-size:12px"> by the system Adminstrator <br>
-demo username : admin / Admin@123 </p>
+demo username : admin / Admin@123 <br>
+non-admins username : eli@KMMAS / KMC@2026</p>
 </div>
 </body>
 </html>
