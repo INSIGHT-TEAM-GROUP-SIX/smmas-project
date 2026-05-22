@@ -253,8 +253,119 @@ $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-d');
     }
     ?>
     
+ <!-- Auto-Generated Insights -->
+    <?php
+    // Gather insight data fresh (independent of which report tab is active)
+    $insights = [];
+
+    // 1. Expiry insights
+    $exp = $conn->query("SELECT COUNT(*) as cnt FROM Batch WHERE batch_status='Active' AND DATEDIFF(expiry_date, CURDATE()) BETWEEN 0 AND 7")->fetch();
+    if($exp['cnt'] > 0)
+        $insights[] = ['critical', '🔥', "URGENT: {$exp['cnt']} batch(es) expire within 7 days — dispense immediately (FIFO)."];
+
+    $exp30 = $conn->query("SELECT COUNT(*) as cnt FROM Batch WHERE batch_status='Active' AND DATEDIFF(expiry_date, CURDATE()) BETWEEN 0 AND 30")->fetch();
+    if($exp30['cnt'] > $exp['cnt'])
+        $insights[] = ['warning', '⚠️', ($exp30['cnt'] - $exp['cnt']) . " additional batch(es) expire within 30 days — monitor closely."];
+
+    $expired = $conn->query("SELECT COUNT(*) as cnt FROM Batch WHERE batch_status='Active' AND expiry_date < CURDATE()")->fetch();
+    if($expired['cnt'] > 0)
+        $insights[] = ['critical', '🗑️', "{$expired['cnt']} batch(es) have already expired and should be removed from stock."];
+
+    // 2. Stock insights
+    $low = $conn->query("
+        SELECT COUNT(*) as cnt FROM (
+            SELECT m.medicine_id FROM Medicine m
+            LEFT JOIN Batch b ON m.medicine_id = b.medicine_id AND b.batch_status='Active'
+            GROUP BY m.medicine_id, m.reorder_level
+            HAVING COALESCE(SUM(b.qty_remaining),0) <= m.reorder_level
+            AND COALESCE(SUM(b.qty_remaining),0) > 0
+        ) t
+    ")->fetch();
+    if($low['cnt'] > 0)
+        $insights[] = ['warning', '📉', "{$low['cnt']} medicine(s) are below reorder level — consider restocking soon."];
+
+    $out = $conn->query("
+        SELECT COUNT(*) as cnt FROM (
+            SELECT m.medicine_id FROM Medicine m
+            LEFT JOIN Batch b ON m.medicine_id = b.medicine_id AND b.batch_status='Active'
+            GROUP BY m.medicine_id
+            HAVING COALESCE(SUM(b.qty_remaining),0) = 0
+        ) t
+    ")->fetch();
+    if($out['cnt'] > 0)
+        $insights[] = ['critical', '🚨', "{$out['cnt']} medicine(s) are completely out of stock."];
+
+    // 3. Top selling medicine
+$top = $conn->query("
+        SELECT m.medicine_name, SUM(t.quantity) as total
+        FROM `Transaction` t
+        JOIN Medicine m ON t.medicine_id = m.medicine_id
+        WHERE t.transaction_type = 'Dispense'
+        GROUP BY m.medicine_id ORDER BY total DESC LIMIT 1
+    ")->fetch();
+    if($top)
+        $insights[] = ['info', '🏆', "Top selling medicine is <strong>{$top['medicine_name']}</strong> with {$top['total']} units dispensed overall."];
+
+    // 4. Today's activity
+    $today = $conn->query("
+        SELECT COUNT(*) as cnt, COALESCE(SUM(quantity * unit_price),0) as rev
+        FROM `Transaction`
+        WHERE DATE(transaction_date) = CURDATE() AND transaction_type='Dispense'
+    ")->fetch();
+    if($today['cnt'] > 0)
+        $insights[] = ['info', '📅', "Today: {$today['cnt']} transaction(s) processed, earning UGX " . number_format($today['rev']) . "."];
+    else
+        $insights[] = ['info', '📅', "No transactions recorded today yet."];
+
+    // 5. Active alerts
+    $active_al = $conn->query("SELECT COUNT(*) as cnt FROM Alert WHERE alert_status='Active'")->fetch();
+    if($active_al['cnt'] > 0)
+        $insights[] = ['warning', '🔔', "{$active_al['cnt']} alert(s) are currently active and unresolved."];
+
+    $critical_al = $conn->query("SELECT COUNT(*) as cnt FROM Alert WHERE alert_status='Active' AND severity_level='Critical'")->fetch();
+    if($critical_al['cnt'] > 0)
+        $insights[] = ['critical', '🚨', "{$critical_al['cnt']} of those alert(s) are CRITICAL severity — immediate action required."];
+
+    // 6. Patient insight
+    $new_pts = $conn->query("SELECT COUNT(*) as cnt FROM Patient WHERE DATE(date_registered) = CURDATE()")->fetch();
+    if($new_pts['cnt'] > 0)
+        $insights[] = ['info', '👤', "{$new_pts['cnt']} new patient(s) registered today."];
+
+    // Color map
+    $colors = [
+        'critical' => ['bg' => '#fff0f0', 'border' => '#e74c3c', 'label' => '#e74c3c'],
+        'warning'  => ['bg' => '#fffbf0', 'border' => '#f39c12', 'label' => '#f39c12'],
+        'info'     => ['bg' => '#f0f7ff', 'border' => '#3498db', 'label' => '#3498db'],
+    ];
+    ?>
+
+    <div class="no-print" style="margin-top:30px;">
+        <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:white;padding:16px 20px;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:22px;">🤖</span>
+            <div>
+                <strong style="font-size:16px;">Auto-Generated Insights</strong>
+                <div style="font-size:11px;opacity:0.7;margin-top:2px;">Generated at <?php echo date('h:i A'); ?> · Based on current system data</div>
+            </div>
+            <span style="margin-left:auto;background:#27ae60;padding:3px 10px;border-radius:20px;font-size:11px;"><?php echo count($insights); ?> insight(s)</span>
+        </div>
+        <div style="border:1px solid #ddd;border-top:none;border-radius:0 0 10px 10px;overflow:hidden;">
+            <?php if(empty($insights)): ?>
+                <div style="padding:20px;text-align:center;color:#27ae60;font-weight:bold;">✅ All systems normal — no issues detected.</div>
+            <?php else: ?>
+                <?php foreach($insights as $i => $ins):
+                    $c = $colors[$ins[0]];
+                ?>
+                <div style="display:flex;align-items:flex-start;gap:12px;padding:13px 18px;background:<?php echo $c['bg']; ?>;border-left:4px solid <?php echo $c['border']; ?>;<?php echo $i < count($insights)-1 ? 'border-bottom:1px solid #eee;' : ''; ?>">
+                    <span style="font-size:20px;line-height:1.4;"><?php echo $ins[1]; ?></span>
+                    <span style="color:#333;line-height:1.6;"><?php echo $ins[2]; ?></span>
+                </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <!-- Footer -->
-    <div style="margin-top: 20px; padding: 10px; background: #e7f3ff; border-radius: 5px; text-align: center; font-size: 11px; color: #666;">
+    <div style="margin-top:15px;padding:10px;background:#e7f3ff;border-radius:5px;text-align:center;font-size:11px;color:#666;">
         <strong>SMMAS - Smart Medicine Monitoring & Alert System</strong><br>
         Kyambogo Medical Centre | Generated by: <?php echo $_SESSION['full_name']; ?> | Date: <?php echo date('Y-m-d H:i:s'); ?>
     </div>
