@@ -6,8 +6,8 @@ $stmt = $conn->query("
         m.medicine_id, m.medicine_name, m.category, m.strength,
         m.unit_of_measure, m.reorder_level, m.unit_price,
         COALESCE(SUM(b.qty_remaining), 0) as current_stock, m.status
-    FROM Medicine m
-    LEFT JOIN Batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
+    FROM medicine m
+    LEFT JOIN batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
     GROUP BY m.medicine_id, m.medicine_name, m.category, m.strength, m.unit_of_measure, m.reorder_level, m.unit_price, m.status
     ORDER BY current_stock ASC
 ");
