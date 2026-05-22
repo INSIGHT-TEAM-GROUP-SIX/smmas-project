@@ -31,6 +31,30 @@ $recent = $conn->query("
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
+ dashboard
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Dashboard</title>
+<style>
+    .typing {
+      width: 22ch; /* number of characters */
+      animation: typing 3s steps(22), blink .5s step-end infinite alternate;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 3px solid;
+      font-family: monospace;
+      font-size: 20px;
+    }
+
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 22ch }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent }
+    }
+  </style>
+<link rel="stylesheet" href="css/style.css" /></head>
+
 <head>
 <meta charset="utf-8" />
 <title>Dashboard</title>
@@ -62,6 +86,7 @@ $recent = $conn->query("
 </style>
 </head>
 
+ main
 <body>
 
 <?php include 'includes/navbar.php'; ?>
