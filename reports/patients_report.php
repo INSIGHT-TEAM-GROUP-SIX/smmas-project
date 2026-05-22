@@ -6,8 +6,8 @@ $stmt = $conn->prepare("
         COUNT(t.transaction_id) as visit_count,
         SUM(t.quantity) as total_medicines,
         COALESCE(SUM(t.quantity * t.unit_price), 0) as total_spent
-    FROM Patient p
-    LEFT JOIN `Transaction` t ON p.patient_id = t.patient_id AND t.transaction_type = 'Dispense'
+    FROM patient p
+    LEFT JOIN `transaction` t ON p.patient_id = t.patient_id AND t.transaction_type = 'Dispense'
     WHERE DATE(p.date_registered) BETWEEN ? AND ?
     GROUP BY p.patient_id
     ORDER BY p.date_registered DESC
@@ -48,7 +48,7 @@ foreach($patients_data as $patient) {
 // Patient type breakdown
 $type_stats = $conn->query("
     SELECT patient_type, COUNT(*) as count 
-    FROM Patient 
+    FROM patient 
     WHERE DATE(date_registered) BETWEEN '$from_date' AND '$to_date'
     GROUP BY patient_type
 ")->fetchAll();

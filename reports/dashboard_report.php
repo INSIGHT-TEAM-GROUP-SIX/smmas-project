@@ -2,23 +2,23 @@
 // Dashboard Report - Fixed Version
 
 // Get key metrics - Simple working queries
-$stmt = $conn->query("SELECT COUNT(*) as count FROM Medicine");
+$stmt = $conn->query("SELECT COUNT(*) as count FROM medicine");
 $total_medicines = $stmt->fetch()['count'];
 
-$stmt = $conn->query("SELECT COUNT(*) as count FROM Patient");
+$stmt = $conn->query("SELECT COUNT(*) as count FROM patient");
 $total_patients = $stmt->fetch()['count'];
 
-$stmt = $conn->query("SELECT COUNT(*) as count FROM `Transaction`");
+$stmt = $conn->query("SELECT COUNT(*) as count FROM `transaction`");
 $total_transactions = $stmt->fetch()['count'];
 
-$stmt = $conn->query("SELECT COALESCE(SUM(quantity * unit_price), 0) as total FROM `Transaction` WHERE transaction_type = 'Dispense'");
+$stmt = $conn->query("SELECT COALESCE(SUM(quantity * unit_price), 0) as total FROM `transaction` WHERE transaction_type = 'Dispense'");
 $total_revenue = $stmt->fetch()['total'];
 
 // Fixed Low Stock Query - Simpler version that works
 $stmt = $conn->query("
     SELECT m.medicine_id, m.reorder_level, COALESCE(SUM(b.qty_remaining), 0) as current_stock
-    FROM Medicine m
-    LEFT JOIN Batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
+    FROM medicine m
+    LEFT JOIN batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
     GROUP BY m.medicine_id, m.reorder_level
 ");
 $all_medicines = $stmt->fetchAll();
@@ -32,7 +32,7 @@ foreach($all_medicines as $med) {
 // Fixed Expiring Soon Query
 $stmt = $conn->query("
     SELECT COUNT(*) as count 
-    FROM Batch 
+    FROM batch 
     WHERE expiry_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
     AND batch_status = 'Active'
 ");
@@ -41,8 +41,8 @@ $expiring_soon = $stmt->fetch()['count'];
 // Top selling medicines
 $stmt = $conn->query("
     SELECT m.medicine_name, SUM(t.quantity) as total_sold
-    FROM `Transaction` t
-    JOIN Medicine m ON t.medicine_id = m.medicine_id
+    FROM `transaction` t
+    JOIN medicine m ON t.medicine_id = m.medicine_id
     WHERE t.transaction_type = 'Dispense'
     GROUP BY m.medicine_id, m.medicine_name
     ORDER BY total_sold DESC
@@ -53,7 +53,7 @@ $top_medicines = $stmt->fetchAll();
 // Today's transactions
 $stmt = $conn->query("
     SELECT COUNT(*) as count, COALESCE(SUM(quantity * unit_price), 0) as total
-    FROM `Transaction` 
+    FROM `transaction` 
     WHERE DATE(transaction_date) = CURDATE()
     AND transaction_type = 'Dispense'
 ");
@@ -62,10 +62,10 @@ $today_stats = $stmt->fetch();
 // Recent activity
 $stmt = $conn->query("
     SELECT 'Transaction' as type, transaction_id as id, transaction_date as date 
-    FROM `Transaction` 
+    FROM `transaction` 
     UNION ALL
     SELECT 'Alert' as type, alert_id as id, date_generated as date 
-    FROM Alert 
+    FROM alert 
     ORDER BY date DESC 
     LIMIT 10
 ");

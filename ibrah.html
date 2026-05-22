@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Load Page</title>
+  <style>
+    .typing {
+      width: 22ch; /* number of characters */
+      animation: typing 3s steps(22), blink .5s step-end infinite alternate;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 3px solid;
+      font-family: monospace;
+      font-size: 20px;
+    }
+
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 22ch }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent }
+    }
+  </style>
+</head>
+<body>
+  <div class="typing">Loading Smart Dashboard...</div>
+</body>
+</html>

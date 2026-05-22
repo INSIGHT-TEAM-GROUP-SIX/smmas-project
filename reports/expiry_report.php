@@ -13,8 +13,8 @@ $stmt = $conn->query("
         b.qty_received,
         b.qty_remaining,
         DATEDIFF(b.expiry_date, CURDATE()) as days_remaining
-    FROM Batch b
-    JOIN Medicine m ON b.medicine_id = m.medicine_id
+    FROM batch b
+    JOIN medicine m ON b.medicine_id = m.medicine_id
     WHERE b.batch_status != 'Depleted'
     ORDER BY b.expiry_date ASC
 ");
