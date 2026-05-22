@@ -73,7 +73,9 @@ button{width:100%;padding:12px;background:#0A4F6E;color:white;border:none;border
 <button type="submit">Login into SMMAS </button>
 </form>
 <p style="margin-top:15px;font-size:12px">Login in using credentials provided</p>
-<p style="margin-top:15px;font-size:12px"> by the system Adminstrator </p>
+<p style="margin-top:15px;font-size:12px"> by the system Adminstrator <br>
+demo username : admin / Admin@123 <br>
+non-admin username : caregiver@KMMAS / KMC@2026 </p>
 </div>
 </body>
 </html>

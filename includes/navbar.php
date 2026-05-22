@@ -15,6 +15,7 @@
 .clearfix{clear:both}
 </style></head>
 <body>
+
 <div class="navbar"><div class="nav-container">
 <div class="nav-brand"><a href="dashboard.php">🏥 SMMAS</a></div>
 <div class="user-info">👤 <?php echo $_SESSION['username']; ?> (<?php echo $_SESSION['role']; ?>) <a href="logout.php" class="logout-btn">Logout</a></div>

@@ -20,7 +20,6 @@ if(isset($_POST['process_transaction'])) {
     $payment_method = $_POST['payment_method'] ?? null;
     $dispense_duration = isset($_POST['dispense_duration']) ? (int)$_POST['dispense_duration'] : null;
     $medicine_name_for_tracker = '';
-=======
     $transaction_id  = generateTransactionID($conn);
     $medicine_id     = $_POST['medicine_id'];
     $batch_id        = $_POST['batch_id'];
