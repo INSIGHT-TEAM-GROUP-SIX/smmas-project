@@ -71,7 +71,7 @@ if(isset($_POST['process_transaction'])) {
 
                 
                 $med_name = $conn->prepare("SELECT medicine_name FROM medicine WHERE medicine_id = ?");
-
+if (isset($_POST['process_transaction']))
                 $med_name->execute([$medicine_id]);
 
                 $medicine_name_for_tracker = $med_name->fetch()['medicine_name'];
