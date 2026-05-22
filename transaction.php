@@ -8,7 +8,7 @@ $message = '';
 
 // Handle transaction submission
 if(isset($_POST['process_transaction'])) {
-<<<<<<< Updated upstream
+
     $transaction_id = generateTransactionID($conn);
     $medicine_id = $_POST['medicine_id'];
     $batch_id = $_POST['batch_id'];
@@ -31,7 +31,7 @@ if(isset($_POST['process_transaction'])) {
     $handled_by      = $_SESSION['full_name'];
     $payment_method  = $_POST['payment_method'] ?? null;
     $dispense_duration = isset($_POST['dispense_duration']) ? (int)$_POST['dispense_duration'] : null;
->>>>>>> Stashed changes
+
 
     if($transaction_type == 'Dispense') {
         $check = $conn->prepare("SELECT qty_remaining FROM Batch WHERE batch_id = ?");
@@ -59,7 +59,7 @@ if(isset($_POST['process_transaction'])) {
 
                 $med_name = $conn->prepare("SELECT medicine_name FROM Medicine WHERE medicine_id = ?");
                 $med_name->execute([$medicine_id]);
-<<<<<<< Updated upstream
+
                 $medicine_name_for_tracker = $med_name->fetch()['medicine_name'];
 
                 $message = '<div class="success">✅ Transaction successful!<br>
@@ -67,16 +67,16 @@ if(isset($_POST['process_transaction'])) {
                 $medicine_name = $med_name->fetch()['medicine_name'];
 
                 $message = '<div class="success">Transaction successful!<br>
->>>>>>> Stashed changes
+
                             ID: ' . $transaction_id . '<br>
                             Medicine: ' . $medicine_name_for_tracker . '<br>
                             Quantity: ' . $quantity . '<br>
                             Total: UGX ' . number_format($quantity * $unit_price) . '<br>
-<<<<<<< Updated upstream
+
                             <button onclick="window.print()" style="margin-top:10px;background:#0A4F6E;color:white;border:none;padding:8px 15px;border-radius:5px;cursor:pointer;">🖨️ Print Receipt</button></div>';
 =======
                             <button onclick="window.print()" style="margin-top:10px;background:#0A4F6E;color:white;border:none;padding:8px 15px;border-radius:5px;cursor:pointer;">Print Receipt</button></div>';
->>>>>>> Stashed changes
+
 
             } catch(PDOException $e) {
                 $conn->rollBack();
@@ -120,20 +120,20 @@ $recent    = $conn->query("SELECT t.*, m.medicine_name FROM `Transaction` t JOIN
 <!DOCTYPE html>
 <html>
 <head>
-<<<<<<< Updated upstream
+
 =======
 <meta charset="UTF-8">
->>>>>>> Stashed changes
+
 <title>Transaction - SMMAS</title>
 <link rel="stylesheet" href="css/style.css">
 <script src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-<<<<<<< Updated upstream
+
 /* ── existing styles ── */
 =======
 /* ── Existing styles ── */
->>>>>>> Stashed changes
+
 .form-container{background:white;padding:20px;border-radius:10px;margin-bottom:20px}
 .form-row{margin-bottom:15px}
 .form-row label{display:inline-block;width:150px;font-weight:bold}
@@ -147,7 +147,7 @@ $recent    = $conn->query("SELECT t.*, m.medicine_name FROM `Transaction` t JOIN
 .error{background:#f8d7da;color:#721c24;padding:15px;border-radius:5px;margin-bottom:20px}
 
 /* ── Dispense Speed Tracker styles ── */
-<<<<<<< Updated upstream
+
 .dsp-section{margin-bottom:30px}
 .dsp-heading{font-size:18px;font-weight:bold;color:#0A4F6E;margin-bottom:15px;display:flex;align-items:center;gap:8px}
 .dsp-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
@@ -221,7 +221,7 @@ $recent    = $conn->query("SELECT t.*, m.medicine_name FROM `Transaction` t JOIN
 .dsp-legend{display:flex;gap:15px;font-size:12px;margin-top:8px}
 .dsp-legend span{display:flex;align-items:center;gap:5px}
 .dsp-legend-dot{width:12px;height:12px;border-radius:50%;display:inline-block}
->>>>>>> Stashed changes
+
 </style>
 </head>
 <body>
@@ -232,7 +232,7 @@ $recent    = $conn->query("SELECT t.*, m.medicine_name FROM `Transaction` t JOIN
 <p style="color:#666;margin-bottom:20px">Transaction IDs are auto-generated: TXN-20260507-001, TXN-20260507-002...</p>
 <?php echo $message; ?>
 
-<<<<<<< Updated upstream
+ 
 <!-- ════════════════════════════════════════════
      DISPENSE SPEED TRACKER
      ════════════════════════════════════════════ -->
@@ -465,12 +465,12 @@ $recent    = $conn->query("SELECT t.*, m.medicine_name FROM `Transaction` t JOIN
         <div class="total-box">TOTAL: UGX <span id="totalAmt">0</span></div>
         <input type="submit" name="process_transaction" value="Process Transaction" class="btn-primary">
     </form>
->>>>>>> Stashed changes
+
 </div>
 
 <!-- Recent Transactions Table -->
 <div class="data-table-container">
-<<<<<<< Updated upstream
+
 <h2>📋 Recent Transactions</h2>
 <table class="data-table">
 <thead><tr><th>ID</th><th>Medicine</th><th>Type</th><th>Qty</th><th>Amount</th><th>Staff</th><th>Date</th></tr></thead>
@@ -533,7 +533,7 @@ $recent    = $conn->query("SELECT t.*, m.medicine_name FROM `Transaction` t JOIN
 /* ================================================================
    EXISTING TRANSACTION FORM JAVASCRIPT
    ================================================================ */
->>>>>>> Stashed changes
+
 $(document).ready(function(){
 
     // When medicine is selected: auto-fill price and load batches via AJAX
@@ -551,10 +551,10 @@ $(document).ready(function(){
         calculateTotal();
     });
 
-<<<<<<< Updated upstream
+
 =======
     // Recalculate total whenever quantity changes
->>>>>>> Stashed changes
+
     $('#quantity').on('input', calculateTotal);
 
     function calculateTotal() {
@@ -563,10 +563,10 @@ $(document).ready(function(){
         $('#totalAmt').text((qty * price).toLocaleString());
     }
 
-<<<<<<< Updated upstream
+
 =======
     // Show/hide patient and payment fields based on transaction type
->>>>>>> Stashed changes
+
     $('#transType').change(function(){
         if($(this).val() == 'Dispense') {
             $('#patientRow').show();
@@ -577,7 +577,7 @@ $(document).ready(function(){
         }
     }).trigger('change');
 
-<<<<<<< Updated upstream
+
     /* On form submit: save current elapsed time to hidden field */
     $('#transForm').on('submit', function(){
         $('#dispenseDuration').val(dspElapsed);
@@ -591,14 +591,13 @@ $(document).ready(function(){
         $('#dispenseDuration').val(dspElapsed);
         if(dspRunning) {
             var medName = $('#medicine').find(':selected').data('name') || 'Unknown Medicine';
->>>>>>> Stashed changes
+
             dspRecordEntry(medName, dspElapsed);
             dspReset();
         }
     });
 });
 
-<<<<<<< Updated upstream
 /* ── Dispense Speed Tracker JS ── */
 var dspInterval  = null;
 var dspStartTime = null;
@@ -659,14 +658,14 @@ function dspStart() {
         'Timer is running. Fill in the form below and click <strong>Process Transaction</strong>, then press <strong>Record and Stop</strong>.';
 
     // setInterval fires every 500ms (half a second) to update the display
->>>>>>> Stashed changes
+
     dspInterval = setInterval(function(){
         dspElapsed = Math.round((Date.now() - dspStartTime) / 1000);
         document.getElementById('timerDisplay').textContent = dspFmt(dspElapsed);
     }, 500);
 }
 
-<<<<<<< Updated upstream
+
 function dspStop() {
     if(!dspRunning) return;
     clearInterval(dspInterval);
@@ -699,12 +698,12 @@ function dspStop() {
 }
 
 // RESET button - clears the timer back to 00:00
->>>>>>> Stashed changes
+
 function dspReset() {
     clearInterval(dspInterval);
     dspRunning = false;
     dspElapsed = 0;
-<<<<<<< Updated upstream
+
     document.getElementById('timerDisplay').textContent = '00:00';
     document.getElementById('timerBadge').textContent   = 'idle';
     document.getElementById('timerBadge').className     = 'dsp-status-badge idle';
@@ -743,7 +742,7 @@ function dspSpeedLabel(sec) {
 function dspRecordEntry(name, sec) {
     dspCounter++;
     dspRecords.push({ name: name, sec: sec, ts: new Date() });
->>>>>>> Stashed changes
+
     dspMedCounts[name] = (dspMedCounts[name] || 0) + 1;
     dspUpdateStats();
     dspUpdateLog();
@@ -751,15 +750,15 @@ function dspRecordEntry(name, sec) {
     document.getElementById('dspChartPanel').style.display = '';
 }
 
-<<<<<<< Updated upstream
+
 =======
 // Recalculates and updates the 4 summary stat cards
->>>>>>> Stashed changes
+
 function dspUpdateStats() {
     var n = dspRecords.length;
     document.getElementById('statCount').textContent = n;
     if(n === 0) {
-<<<<<<< Updated upstream
+
         document.getElementById('statAvg').textContent  = '—';
         document.getElementById('statFast').textContent = '—';
         document.getElementById('statRate').textContent = '—';
@@ -773,7 +772,7 @@ function dspUpdateStats() {
         return;
     }
     var total = dspRecords.reduce(function(a, r){ return a + r.sec; }, 0);
->>>>>>> Stashed changes
+
     var avg   = Math.round(total / n);
     var fast  = Math.min.apply(null, dspRecords.map(function(r){ return r.sec; }));
     var sessionSec = (dspRecords[n-1].ts - dspRecords[0].ts) / 1000 + dspRecords[0].sec;
@@ -783,7 +782,7 @@ function dspUpdateStats() {
     document.getElementById('statRate').textContent = rate;
 }
 
-<<<<<<< Updated upstream
+
 function dspUpdateLog() {
     var ul   = document.getElementById('dspLog');
     ul.innerHTML = '';
@@ -808,14 +807,14 @@ function dspUpdateLog() {
             '<span class="log-name">' + r.name + '</span>' +
             '<span class="log-meta">' +
                 '<span style="color:#555">' + r.sec + ' sec</span>' +
->>>>>>> Stashed changes
+
                 '<span class="dsp-speed-badge ' + sp.cls + '">' + sp.txt + '</span>' +
             '</span>';
         ul.appendChild(li);
     });
 }
 
-<<<<<<< Updated upstream
+
 function dspUpdateChart() {
     var last10  = dspRecords.slice(-10);
     var labels  = last10.map(function(_, i){ return '#' + (dspRecords.length - last10.length + i + 1); });
@@ -824,7 +823,7 @@ function dspUpdateChart() {
 function dspUpdateChart() {
     var last10  = dspRecords.slice(-10);
     var labels  = last10.map(function(_, i){ return 'No.' + (dspRecords.length - last10.length + i + 1); });
->>>>>>> Stashed changes
+
     var data    = last10.map(function(r){ return r.sec; });
     var colors  = data.map(function(s){ return s <= 30 ? '#1a7a4a' : s <= 90 ? '#b8860b' : '#c0392b'; });
 
@@ -835,11 +834,11 @@ function dspUpdateChart() {
             data: {
                 labels: labels,
                 datasets: [{
-<<<<<<< Updated upstream
+
                     label: 'Duration (sec)',
 =======
                     label: 'Duration (seconds)',
->>>>>>> Stashed changes
+
                     data: data,
                     backgroundColor: colors,
                     borderRadius: 4,
@@ -851,7 +850,7 @@ function dspUpdateChart() {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
-<<<<<<< Updated upstream
+
                     tooltip: { callbacks: { label: function(c){ return c.parsed.y + 's'; } } }
 =======
                     tooltip: {
@@ -859,19 +858,19 @@ function dspUpdateChart() {
                             label: function(c){ return c.parsed.y + ' seconds'; }
                         }
                     }
->>>>>>> Stashed changes
+
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-<<<<<<< Updated upstream
+
                         ticks: { callback: function(v){ return v + 's'; }, font: { size: 11 } },
 =======
                         ticks: {
                             callback: function(v){ return v + 's'; },
                             font: { size: 11 }
                         },
->>>>>>> Stashed changes
+
                         grid: { color: 'rgba(0,0,0,0.05)' }
                     },
                     x: {
@@ -883,16 +882,16 @@ function dspUpdateChart() {
         });
     } else {
         dspChart.data.labels = labels;
-<<<<<<< Updated upstream
+
         dspChart.data.datasets[0].data   = data;
 =======
         dspChart.data.datasets[0].data = data;
->>>>>>> Stashed changes
+
         dspChart.data.datasets[0].backgroundColor = colors;
         dspChart.update();
     }
 
-<<<<<<< Updated upstream
+
     /* Medicine volume bars */
     var barsEl = document.getElementById('dspMedBars');
     var sorted = Object.entries(dspMedCounts).sort(function(a,b){ return b[1]-a[1]; }).slice(0,5);
@@ -913,7 +912,7 @@ function dspUpdateChart() {
     barsEl.innerHTML = sorted.map(function(entry){
         var name = entry[0], cnt = entry[1];
         var pct  = Math.round((cnt / max) * 100);
->>>>>>> Stashed changes
+
         return '<div class="dsp-bar-row">' +
             '<span class="dsp-bar-label" title="' + name + '">' + name + '</span>' +
             '<div class="dsp-bar-track"><div class="dsp-bar-fill" style="width:' + pct + '%"></div></div>' +
