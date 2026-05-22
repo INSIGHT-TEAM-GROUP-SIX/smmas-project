@@ -1,0 +1,28 @@
+# .github/workflows/deploy.yml
+name: Deploy to InfinityFree
+
+# This starts the process automatically when you push code to the 'main' branch.
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy via FTP
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Download your latest code from GitHub inside the automation machine
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Upload the code to InfinityFree using FTP
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftpupload.net
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # IMPORTANT: Change this to match your domain setup!
+          server-dir: /htdocs/  # <-- EDIT THIS LINE

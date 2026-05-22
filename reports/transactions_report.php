@@ -7,7 +7,7 @@ $stmt = $conn->prepare("
         COUNT(*) as transaction_count,
         SUM(t.quantity) as total_quantity,
         SUM(t.quantity * t.unit_price) as total_amount
-    FROM `Transaction` t
+    FROM `transaction` t
     WHERE DATE(t.transaction_date) BETWEEN ? AND ?
     GROUP BY DATE(t.transaction_date), t.transaction_type
     ORDER BY trans_date DESC
@@ -29,9 +29,9 @@ $stmt2 = $conn->prepare("
         t.handled_by,
         p.full_name as patient_name,
         t.payment_method
-    FROM `Transaction` t
-    JOIN Medicine m ON t.medicine_id = m.medicine_id
-    LEFT JOIN Patient p ON t.patient_id = p.patient_id
+    FROM `transaction` t
+    JOIN medicine m ON t.medicine_id = m.medicine_id
+    LEFT JOIN patient p ON t.patient_id = p.patient_id
     WHERE DATE(t.transaction_date) BETWEEN ? AND ?
     ORDER BY t.transaction_date DESC
     LIMIT 200

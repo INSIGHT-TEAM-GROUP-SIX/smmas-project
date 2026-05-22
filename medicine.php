@@ -18,7 +18,7 @@ if(isset($_POST['add_medicine'])) {
     $unit_price = $_POST['unit_price'];
     $status = $_POST['status'];
     
-    $sql = "INSERT INTO Medicine (medicine_id, medicine_name, category, dosage_form, strength, unit_of_measure, current_stock, reorder_level, unit_price, status) 
+    $sql = "INSERT INTO medicine (medicine_id, medicine_name, category, dosage_form, strength, unit_of_measure, current_stock, reorder_level, unit_price, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     try {
@@ -29,7 +29,7 @@ if(isset($_POST['add_medicine'])) {
     }
 }
 
-$medicines = $conn->query("SELECT * FROM Medicine ORDER BY medicine_name")->fetchAll();
+$medicines = $conn->query("SELECT * FROM medicine ORDER BY medicine_name")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html>

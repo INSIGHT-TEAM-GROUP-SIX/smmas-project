@@ -7,89 +7,89 @@ $conn = getConnection();
 $message = '';
 
 // Clear old resolved alerts
-$conn->exec("DELETE FROM Alert WHERE alert_status = 'Resolved' AND date_resolved < DATE_SUB(NOW(), INTERVAL 1 DAY)");
+$conn->exec("DELETE FROM alert WHERE alert_status = 'Resolved' AND date_resolved < DATE_SUB(NOW(), INTERVAL 1 DAY)");
 
 // Check for out of stock alerts (Critical)
 $out_of_stock = $conn->query("
     SELECT m.medicine_id, m.medicine_name, m.reorder_level, COALESCE(SUM(b.qty_remaining), 0) as total_stock
-    FROM Medicine m
-    LEFT JOIN Batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
+    FROM medicine m
+    LEFT JOIN batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
     GROUP BY m.medicine_id
     HAVING total_stock = 0
 ");
 
 while($medicine = $out_of_stock->fetch()) {
-    $check = $conn->prepare("SELECT alert_id FROM Alert WHERE medicine_id = ? AND alert_type = 'Stockout' AND alert_status = 'Active'");
+    $check = $conn->prepare("SELECT alert_id FROM alert WHERE medicine_id = ? AND alert_type = 'Stockout' AND alert_status = 'Active'");
     $check->execute([$medicine['medicine_id']]);
     if($check->rowCount() == 0) {
         $alert_id = 'ALT-' . date('Ymd') . '-' . rand(100, 999);
         $message_text = "CRITICAL: {$medicine['medicine_name']} is OUT OF STOCK!";
-        $conn->prepare("INSERT INTO Alert (alert_id, medicine_id, alert_type, severity_level, date_generated, alert_message) VALUES (?, ?, 'Stockout', 'Critical', NOW(), ?)")->execute([$alert_id, $medicine['medicine_id'], $message_text]);
+        $conn->prepare("INSERT INTO alert (alert_id, medicine_id, alert_type, severity_level, date_generated, alert_message) VALUES (?, ?, 'Stockout', 'Critical', NOW(), ?)")->execute([$alert_id, $medicine['medicine_id'], $message_text]);
     }
 }
 
 // Check for low stock alerts (Warning)
 $low_stock = $conn->query("
     SELECT m.medicine_id, m.medicine_name, m.reorder_level, COALESCE(SUM(b.qty_remaining), 0) as total_stock
-    FROM Medicine m
-    LEFT JOIN Batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
+    FROM medicine m
+    LEFT JOIN batch b ON m.medicine_id = b.medicine_id AND b.batch_status = 'Active'
     GROUP BY m.medicine_id
     HAVING total_stock <= m.reorder_level AND total_stock > 0
 ");
 
 while($medicine = $low_stock->fetch()) {
-    $check = $conn->prepare("SELECT alert_id FROM Alert WHERE medicine_id = ? AND alert_type = 'Low Stock' AND alert_status = 'Active'");
+    $check = $conn->prepare("SELECT alert_id FROM alert WHERE medicine_id = ? AND alert_type = 'Low Stock' AND alert_status = 'Active'");
     $check->execute([$medicine['medicine_id']]);
     if($check->rowCount() == 0) {
         $alert_id = 'ALT-' . date('Ymd') . '-' . rand(100, 999);
         $message_text = "Warning: {$medicine['medicine_name']} has only {$medicine['total_stock']} units left. Reorder level is {$medicine['reorder_level']}.";
-        $conn->prepare("INSERT INTO Alert (alert_id, medicine_id, alert_type, severity_level, date_generated, alert_message) VALUES (?, ?, 'Low Stock', 'Warning', NOW(), ?)")->execute([$alert_id, $medicine['medicine_id'], $message_text]);
+        $conn->prepare("INSERT INTO alert (alert_id, medicine_id, alert_type, severity_level, date_generated, alert_message) VALUES (?, ?, 'Low Stock', 'Warning', NOW(), ?)")->execute([$alert_id, $medicine['medicine_id'], $message_text]);
     }
 }
 
 // Check for expiry alerts
 $expiring = $conn->query("
     SELECT b.batch_id, b.expiry_date, m.medicine_name, m.medicine_id, DATEDIFF(b.expiry_date, CURDATE()) as days_left
-    FROM Batch b
-    JOIN Medicine m ON b.medicine_id = m.medicine_id
+    FROM batch b
+    JOIN medicine m ON b.medicine_id = m.medicine_id
     WHERE b.expiry_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
     AND b.batch_status = 'Active'
 ");
 
 while($batch = $expiring->fetch()) {
-    $check = $conn->prepare("SELECT alert_id FROM Alert WHERE batch_id = ? AND alert_status = 'Active'");
+    $check = $conn->prepare("SELECT alert_id FROM alert WHERE batch_id = ? AND alert_status = 'Active'");
     $check->execute([$batch['batch_id']]);
     if($check->rowCount() == 0) {
         $alert_id = 'ALT-' . date('Ymd') . '-' . rand(100, 999);
         $severity = ($batch['days_left'] <= 7) ? 'Critical' : 'Warning';
         $message_text = ($batch['days_left'] <= 7 ? "CRITICAL: " : "Warning: ") . "Batch of {$batch['medicine_name']} expires in {$batch['days_left']} days on " . date('d M Y', strtotime($batch['expiry_date']));
-        $conn->prepare("INSERT INTO Alert (alert_id, medicine_id, batch_id, alert_type, severity_level, date_generated, alert_message) VALUES (?, ?, ?, 'Expiry Warning', ?, NOW(), ?)")->execute([$alert_id, $batch['medicine_id'], $batch['batch_id'], $severity, $message_text]);
+        $conn->prepare("INSERT INTO alert (alert_id, medicine_id, batch_id, alert_type, severity_level, date_generated, alert_message) VALUES (?, ?, ?, 'Expiry Warning', ?, NOW(), ?)")->execute([$alert_id, $batch['medicine_id'], $batch['batch_id'], $severity, $message_text]);
     }
 }
 
 // Handle alert actions
 if(isset($_POST['acknowledge_alert'])) {
     $alert_id = $_POST['alert_id'];
-    $conn->prepare("UPDATE Alert SET alert_status = 'Acknowledged' WHERE alert_id = ?")->execute([$alert_id]);
+    $conn->prepare("UPDATE alert SET alert_status = 'Acknowledged' WHERE alert_id = ?")->execute([$alert_id]);
     $message = '<div class="success" style="background:#d4edda; color:#155724; padding:10px; border-radius:5px; margin-bottom:15px;">✅ Alert acknowledged</div>';
 }
 
 if(isset($_POST['resolve_alert']) && $_SESSION['role'] == 'Admin') {
     $alert_id = $_POST['alert_id'];
-    $conn->prepare("UPDATE Alert SET alert_status = 'Resolved', date_resolved = NOW() WHERE alert_id = ?")->execute([$alert_id]);
+    $conn->prepare("UPDATE alert SET alert_status = 'Resolved', date_resolved = NOW() WHERE alert_id = ?")->execute([$alert_id]);
     $message = '<div class="success" style="background:#d4edda; color:#155724; padding:10px; border-radius:5px; margin-bottom:15px;">✅ Alert resolved</div>';
 }
 
 // Get counts (ONLY active alerts)
-$critical_count = $conn->query("SELECT COUNT(*) as count FROM Alert WHERE severity_level = 'Critical' AND alert_status = 'Active'")->fetch()['count'];
-$warning_count = $conn->query("SELECT COUNT(*) as count FROM Alert WHERE severity_level = 'Warning' AND alert_status = 'Active'")->fetch()['count'];
+$critical_count = $conn->query("SELECT COUNT(*) as count FROM alert WHERE severity_level = 'Critical' AND alert_status = 'Active'")->fetch()['count'];
+$warning_count = $conn->query("SELECT COUNT(*) as count FROM alert WHERE severity_level = 'Warning' AND alert_status = 'Active'")->fetch()['count'];
 
 // Get critical alerts (ONLY active)
 $critical_alerts = $conn->query("
     SELECT a.*, m.medicine_name, b.batch_number 
-    FROM Alert a
-    JOIN Medicine m ON a.medicine_id = m.medicine_id
-    LEFT JOIN Batch b ON a.batch_id = b.batch_id
+    FROM alert a
+    JOIN medicine m ON a.medicine_id = m.medicine_id
+    LEFT JOIN batch b ON a.batch_id = b.batch_id
     WHERE a.severity_level = 'Critical' AND a.alert_status = 'Active'
     ORDER BY a.date_generated DESC
 ")->fetchAll();
@@ -97,9 +97,9 @@ $critical_alerts = $conn->query("
 // Get warning alerts (ONLY active)
 $warning_alerts = $conn->query("
     SELECT a.*, m.medicine_name, b.batch_number 
-    FROM Alert a
-    JOIN Medicine m ON a.medicine_id = m.medicine_id
-    LEFT JOIN Batch b ON a.batch_id = b.batch_id
+    FROM alert a
+    JOIN medicine m ON a.medicine_id = m.medicine_id
+    LEFT JOIN batch b ON a.batch_id = b.batch_id
     WHERE a.severity_level = 'Warning' AND a.alert_status = 'Active'
     ORDER BY a.date_generated DESC
 ")->fetchAll();

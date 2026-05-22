@@ -9,8 +9,8 @@ $stmt = $conn->prepare("
             WHEN a.alert_status = 'Acknowledged' THEN 'Acknowledged'
             ELSE 'Resolved'
         END as status_display
-    FROM Alert a
-    JOIN Medicine m ON a.medicine_id = m.medicine_id
+    FROM alert a
+    JOIN medicine m ON a.medicine_id = m.medicine_id
     WHERE DATE(a.date_generated) BETWEEN ? AND ?
     ORDER BY a.date_generated DESC
 ");

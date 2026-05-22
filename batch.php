@@ -9,7 +9,7 @@ $message = '';
 // Function to auto-generate batch number
 function generateBatchNumber($conn) {
     // Get the last batch number
-    $stmt = $conn->query("SELECT batch_number FROM Batch ORDER BY created_at DESC LIMIT 1");
+    $stmt = $conn->query("SELECT batch_number FROM batch ORDER BY created_at DESC LIMIT 1");
     $last = $stmt->fetch();
     
     if($last && preg_match('/BAT-(\d+)/', $last['batch_number'], $matches)) {
@@ -35,7 +35,7 @@ if(isset($_POST['add_batch'])) {
     if(strtotime($expiry_date) <= strtotime($date_received)) {
         $message = '<div class="error">❌ Expiry date must be after received date!</div>';
     } else {
-        $sql = "INSERT INTO Batch (batch_id, medicine_id, batch_number, supplier_name, date_received, expiry_date, qty_received, qty_remaining, unit_cost, batch_status, created_by, created_at) 
+        $sql = "INSERT INTO batch (batch_id, medicine_id, batch_number, supplier_name, date_received, expiry_date, qty_received, qty_remaining, unit_cost, batch_status, created_by, created_at) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, NOW())";
         $stmt = $conn->prepare($sql);
         try {
@@ -47,12 +47,12 @@ if(isset($_POST['add_batch'])) {
     }
 }
 
-$medicines = $conn->query("SELECT medicine_id, medicine_name FROM Medicine WHERE status='Active'")->fetchAll();
+$medicines = $conn->query("SELECT medicine_id, medicine_name FROM medicine WHERE status='Active'")->fetchAll();
 $batches = $conn->query("
     SELECT b.*, m.medicine_name, 
            (b.qty_remaining / b.qty_received * 100) as stock_percentage
-    FROM Batch b 
-    JOIN Medicine m ON b.medicine_id = m.medicine_id 
+    FROM batch b 
+    JOIN medicine m ON b.medicine_id = m.medicine_id 
     ORDER BY b.expiry_date ASC
 ")->fetchAll();
 ?>
