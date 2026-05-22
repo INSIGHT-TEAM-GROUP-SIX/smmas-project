@@ -33,16 +33,16 @@ if(isset($_POST['add_batch'])) {
     $unit_cost = $_POST['unit_cost'];
     
     if(strtotime($expiry_date) <= strtotime($date_received)) {
-        $message = '<div class="error">❌ Expiry date must be after received date!</div>';
+        $message = '<div class="error">âŒ Expiry date must be after received date!</div>';
     } else {
         $sql = "INSERT INTO Batch (batch_id, medicine_id, batch_number, supplier_name, date_received, expiry_date, qty_received, qty_remaining, unit_cost, batch_status, created_by, created_at) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, NOW())";
         $stmt = $conn->prepare($sql);
         try {
             $stmt->execute([$batch_id, $medicine_id, $batch_number, $supplier_name, $date_received, $expiry_date, $qty_received, $qty_received, $unit_cost, $_SESSION['username']]);
-            $message = '<div class="success">✅ Batch added successfully!<br>Batch ID: ' . $batch_id . '<br>Batch Number: ' . $batch_number . '</div>';
+            $message = '<div class="success">âœ… Batch added successfully!<br>Batch ID: ' . $batch_id . '<br>Batch Number: ' . $batch_number . '</div>';
         } catch(PDOException $e) {
-            $message = '<div class="error">❌ Error: ' . $e->getMessage() . '</div>';
+            $message = '<div class="error">âŒ Error: ' . $e->getMessage() . '</div>';
         }
     }
 }
@@ -61,82 +61,65 @@ $batches = $conn->query("
 <head><title>Batch Management - SMMAS</title>
 <link rel="stylesheet" href="css/style.css">
 <style>
-/* ==================== EXPIRY HEATMAP & ANIMATIONS ==================== */
 .batch-stats{display:flex;gap:20px;margin-bottom:25px;flex-wrap:wrap}
-.stat-card{flex:1;background:white;padding:20px;border-radius:10px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,0.1);border-left:5px solid}
+.stat-card{flex:1;background:white;padding:20px;border-radius:10px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,0.1);border-left:4px solid}
 .stat-card.total{border-left-color:#0A4F6E}
 .stat-card.active{border-left-color:#2ecc71}
 .stat-card.expiring{border-left-color:#f39c12}
-
 .stat-number{font-size:32px;font-weight:bold;color:#2c3e50}
 .stat-label{color:#666;margin-top:5px}
 
-/* Expiry Badge */
-.expiry-badge {
-    padding: 8px 14px;
-    border-radius: 25px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
+/* ── Heatmap row colours ── */
+.batch-table tr.low-risk    { background-color:#e8f5e9 !important; }
+.batch-table tr.medium-risk { background-color:#fff3e0 !important; }
+.batch-table tr.high-risk   { background-color:#ffebee !important; }
+.batch-table tr.critical-risk{ background-color:#ffcdd2 !important; font-weight:500; }
 
-.expires-soon {
-    background: linear-gradient(135deg, #ff9800, #f57c00);
-    color: white;
-    animation: pulse 2s infinite;
-}
-
-.critical {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    color: white;
-    animation: shake 0.6s infinite alternate;
-    box-shadow: 0 0 15px rgba(231, 76, 60, 0.7);
-}
-
-.fire-emoji {
-    animation: fire-shake 0.8s infinite alternate;
-    display: inline-block;
-}
-
-/* Animations */
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
-}
-
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-    100% { transform: translateX(0); }
-}
-
-@keyframes fire-shake {
-    0%   { transform: scale(1) rotate(-12deg); }
-    100% { transform: scale(1.25) rotate(12deg); }
-}
-
-/* Heatmap Row Colors */
-.batch-table tr.low-risk    { background-color: #e8f5e9 !important; }
-.batch-table tr.medium-risk { background-color: #fff3e0 !important; }
-.batch-table tr.high-risk   { background-color: #ffebee !important; }
-.batch-table tr.critical-risk { background-color: #ffcdd2 !important; font-weight: 500; }
-
+.batch-table{width:100%;border-collapse:collapse;background:white;border-radius:10px;overflow:hidden}
 .batch-table th{background:#0A4F6E;color:white;padding:12px;text-align:left}
-.batch-table td{padding:12px;border-bottom:1px solid #eee}
-.batch-table tr:hover{filter: brightness(0.98);}
+.batch-table td{padding:10px 12px;border-bottom:1px solid #eee}
+.batch-table tr:hover{filter:brightness(0.97)}
+.status-batch{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:bold}
+.status-Active{background:#2ecc71;color:white}
+.status-Depleted{background:#95a5a6;color:white}
+.status-Expired{background:#e74c3c;color:white}
+.stock-bar{width:80px;background:#ecf0f1;border-radius:10px;height:6px;margin-top:5px}
+.stock-bar-fill{height:6px;border-radius:10px}
+.stock-high{background:#2ecc71}
+.stock-medium{background:#f39c12}
+.stock-low{background:#e74c3c}
+.form-container{background:white;padding:20px;border-radius:10px;margin-bottom:25px;border:1px solid #ddd}
+.form-row{margin-bottom:15px}
+.form-row label{display:inline-block;width:150px;font-weight:bold}
+.form-row input,.form-row select{width:250px;padding:8px;border:1px solid #ddd;border-radius:5px}
+.btn-primary{background:#0A4F6E;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer}
+.btn-primary:hover{background:#0E6B40}
 
-.status-batch{display:inline-block;padding:5px 12px;border-radius:20px;font-size:13px;font-weight:bold}
-.stock-bar{width:90px;background:#ecf0f1;border-radius:10px;height:8px;margin-top:4px}
-.stock-bar-fill{height:8px;border-radius:10px}
+/* ── Expiry badges ── */
+.expiry-badge{padding:6px 12px;border-radius:25px;font-weight:700;font-size:0.85rem;display:inline-flex;align-items:center;gap:5px}
+.badge-safe{background:#2ecc71;color:white}
+.badge-medium{background:#f39c12;color:white}
+.badge-soon{background:linear-gradient(135deg,#ff9800,#f57c00);color:white;animation:pulse 2s infinite}
+.badge-critical{background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;
+    animation:shake 0.5s infinite alternate;
+    box-shadow:0 0 12px rgba(231,76,60,0.6)}
+
+/* ── FIFO badge ── */
+.fifo-badge{display:inline-block;background:#6c3483;color:white;font-size:10px;
+    font-weight:bold;padding:2px 7px;border-radius:10px;margin-left:6px;
+    vertical-align:middle;letter-spacing:0.5px}
+
+/* ── Animations ── */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.75}}
+@keyframes shake{0%{transform:translateX(-4px)}100%{transform:translateX(4px)}}
+@keyframes fire{0%{transform:scale(1) rotate(-12deg)}100%{transform:scale(1.3) rotate(12deg)}}
+.fire-emoji{display:inline-block;animation:fire 0.7s infinite alternate}
 </style>
-</head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
 <body>
 <?php include 'includes/navbar.php'; ?>
 <div class="container">
-<h1>📦 Batch Management</h1>
+<h1>Batch Management</h1>
 <p style="color:#666;margin-bottom:20px">Batch numbers are auto-generated sequentially (BAT-0001, BAT-0002...)</p>
 
 <?php echo $message; ?>
@@ -158,7 +141,7 @@ foreach($batches as $b) {
 </div>
 
 <div class="form-container">
-<h2>➕ Add New Batch</h2>
+<h2>+ Add New Batch</h2>
 <form method="post">
 <div class="form-row">
 <label>Batch Number:</label>
@@ -195,80 +178,115 @@ foreach($batches as $b) {
 <label>Unit Cost (UGX):</label>
 <input type="number" name="unit_cost" step="0.01">
 </div>
-<input type="submit" name="add_batch" value="➕ Add Batch" class="btn-primary">
+<input type="submit" name="add_batch" value="+ Add Batch" class="btn-primary">
 </form>
 </div>
 
 <div style="overflow-x:auto">
 <table class="batch-table">
-        <thead>
-        <tr>
-            <th>Batch Number</th>
-            <th>Medicine</th>
-            <th>Supplier</th>
-            <th>Date Received</th>
-            <th>Expiry Date</th>
-            <th>Received</th>
-            <th>Remaining</th>
-            <th>Stock Level</th>
-            <th>Expiry Status</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php foreach($batches as $b): 
-            $days_left = floor((strtotime($b['expiry_date']) - time()) / 86400);
-            
-            // Heatmap logic
-            if($days_left < 0) {
-                $row_class = 'expired critical-risk';
-                $status_text = 'Expired';
-            } elseif($days_left <= 7) {
-                $row_class = 'critical-risk';
-                $status_text = 'Critical';
-            } elseif($days_left <= 30) {
-                $row_class = 'high-risk';
-                $status_text = 'Expiring Soon';
-            } elseif($days_left <= 90) {
-                $row_class = 'medium-risk';
-                $status_text = 'Medium Risk';
-            } else {
-                $row_class = 'low-risk';
-                $status_text = 'Safe';
-            }
+<thead>
+<tr>
+<th>Batch Number</th>
+<th>Medicine</th>
+<th>Supplier</th>
+<th>Date Received</th>
+<th>Expiry Date</th>
+<th>Received</th>
+<th>Remaining</th>
+<th>Stock Level</th>
+<th>Expiry Status</th>
+</tr>
+</thead>
+<tbody>
+<?php 
+// Find the single soonest-expiring active batch for FIFO badge
+$fifo_batch_id = null;
+$soonest_days = PHP_INT_MAX;
+foreach($batches as $b) {
+    $d = (strtotime($b['expiry_date']) - time()) / 86400;
+    if($d >= 0 && $b['batch_status'] == 'Active' && $d < $soonest_days) {
+        $soonest_days = $d;
+        $fifo_batch_id = $b['batch_id'];
+    }
+}
+?>
+<?php foreach($batches as $b): 
+    $days_left = floor((strtotime($b['expiry_date']) - time()) / 86400);
 
-            $percent = min(100, $b['stock_percentage']);
-        ?>
-        <tr class="<?php echo $row_class; ?>">
-            <td><strong><?php echo $b['batch_number']; ?></strong></td>
-            <td><?php echo $b['medicine_name']; ?></td>
-            <td><?php echo $b['supplier_name']; ?></td>
-            <td><?php echo date('d M Y', strtotime($b['date_received'])); ?></td>
-            <td><?php echo date('d M Y', strtotime($b['expiry_date'])); ?></td>
-            <td><?php echo $b['qty_received']; ?></td>
-            <td><strong><?php echo $b['qty_remaining']; ?></strong> units</td>
-            <td>
-                <div class="stock-bar"><div class="stock-bar-fill stock-high" style="width: <?php echo $percent; ?>%"></div></div>
-                <small><?php echo round($percent); ?>%</small>
-            </td>
-            <td>
-                <?php if($days_left <= 30 && $days_left >= 0): ?>
-                    <span class="expiry-badge <?php echo ($days_left <= 7) ? 'critical' : 'expires-soon'; ?>">
-                        <?php if($days_left <= 7): ?>🔥<?php endif; ?>
-                        Expires in <strong><?php echo $days_left; ?></strong> days
-                    </span>
-                <?php elseif($days_left < 0): ?>
-                    <span class="expiry-badge critical">Expired</span>
-                <?php else: ?>
-                    <span class="expiry-badge" style="background:#2ecc71;color:white;">Safe (<?php echo $days_left; ?> days)</span>
-                <?php endif; ?>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-    </table>
+    // Heatmap row class
+    if($days_left < 0) {
+        $row_class = 'critical-risk';
+    } elseif($days_left <= 7) {
+        $row_class = 'critical-risk';
+    } elseif($days_left <= 30) {
+        $row_class = 'high-risk';
+    } elseif($days_left <= 90) {
+        $row_class = 'medium-risk';
+    } else {
+        $row_class = 'low-risk';
+    }
+
+    // Stock bar colour
+    $percent = min(100, $b['stock_percentage']);
+    if($percent >= 50) $stock_class = 'stock-high';
+    elseif($percent >= 20) $stock_class = 'stock-medium';
+    else $stock_class = 'stock-low';
+
+    // Expiry badge
+    if($days_left < 0) {
+        $badge_class = 'badge-critical';
+        $badge_text  = 'Expired';
+        $badge_icon  = '';
+    } elseif($days_left <= 7) {
+        $badge_class = 'badge-critical';
+        $badge_text  = 'Expires in <strong>' . $days_left . '</strong> days';
+        $badge_icon  = '<span class="fire-emoji">🔥</span>';
+    } elseif($days_left <= 30) {
+        $badge_class = 'badge-soon';
+        $badge_text  = 'Expires in <strong>' . $days_left . '</strong> days';
+        $badge_icon  = '⚠️';
+    } elseif($days_left <= 90) {
+        $badge_class = 'badge-medium';
+        $badge_text  = $days_left . ' days left';
+        $badge_icon  = '';
+    } else {
+        $badge_class = 'badge-safe';
+        $badge_text  = 'Safe (' . $days_left . ' days)';
+        $badge_icon  = '';
+    }
+
+    $is_fifo = ($b['batch_id'] === $fifo_batch_id);
+?>
+<tr class="<?php echo $row_class; ?>">
+<td>
+    <strong><?php echo $b['batch_number']; ?></strong>
+    <?php if($is_fifo): ?>
+        <span class="fifo-badge" title="Dispense this batch first (FIFO)">DISPENSE FIRST</span>
+    <?php endif; ?>
+</td>
+<td><?php echo $b['medicine_name']; ?></td>
+<td><?php echo $b['supplier_name']; ?></td>
+<td><?php echo date('d M Y', strtotime($b['date_received'])); ?></td>
+<td><?php echo date('d M Y', strtotime($b['expiry_date'])); ?></td>
+<td><?php echo $b['qty_received']; ?></td>
+<td><strong><?php echo $b['qty_remaining']; ?></strong> units</td>
+<td>
+    <div class="stock-bar"><div class="stock-bar-fill <?php echo $stock_class; ?>" style="width:<?php echo $percent; ?>%"></div></div>
+    <small><?php echo round($percent); ?>%</small>
+</td>
+<td>
+    <span class="expiry-badge <?php echo $badge_class; ?>">
+        <?php echo $badge_icon; ?> <?php echo $badge_text; ?>
+    </span>
+</td>
+</tr>
+<?php endforeach; ?>
+</tbody>
+</table>
 </div>
+
 <div style="margin-top:20px;padding:10px;background:#e7f3ff;border-radius:5px;text-align:center;font-size:12px">
-<strong>ℹ️ Batch Number Format:</strong> BAT-0001, BAT-0002, BAT-0003... (Auto-generated sequentially)
+<strong>(i) Batch Number Format:</strong> BAT-0001, BAT-0002, BAT-0003... (Auto-generated sequentially)
 </div>
 </div>
 </body>
