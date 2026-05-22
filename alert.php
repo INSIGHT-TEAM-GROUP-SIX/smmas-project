@@ -219,7 +219,7 @@ hr {
 
 <div class="container">
     <h1>🔔 Alert Dashboard</h1>
-    <p style="color: #666; margin-bottom: 15px;">Real-time medicine expiry and stock alerts</p>
+    <p style="color: #f30808; margin-bottom: 15px;">Real-time Medicine Expiry and Stock Alerts</p>
     
     <button onclick="location.reload()" class="refresh-btn">🔄 Refresh Alerts</button>
     
